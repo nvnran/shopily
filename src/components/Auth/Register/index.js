@@ -5,6 +5,7 @@ import countryCodesData from "../../../data/telCountryCodes.json";
 import firebase from "../../Firebase";
 import { auth } from "../../Firebase";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const RegisterComponent = () => {
   const [email, setEmail] = useState("");
@@ -261,6 +262,11 @@ const RegisterComponent = () => {
             </div>
           </form>
         ) : null}
+        <div className="row justify-content-around">
+          <small>
+            Have an account? <Link to="/auth/login">Login</Link>
+          </small>
+        </div>
       </AuthLayout>
     </>
   );

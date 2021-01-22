@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Menu } from "antd";
-import { auth } from "../Firebase";
+import firebase from "../Firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import {
   HomeOutlined,
   AppstoreOutlined,
@@ -11,103 +13,79 @@ import {
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const { SubMenu } = Menu;
-const { Item } = Menu;
+const HeaderComponent = () => {
+  const [current, setCurrent] = useState("");
+  const [userName, setUserName] = useState("Account");
 
-class HeaderComponent extends React.Component {
-  state = {
-    current: "home",
-    loggedIn: false,
-    name: "Account",
-  };
-
-  handleLogout = () => {
-    this.setState({
-      loggedIn: false,
-      name: "Account",
+  const dispatch = useDispatch();
+  const history = useHistory();
+  let { auth } = useSelector((state) => ({ ...state }));
+  const handleLogout = () => {
+    firebase.auth().signOut();
+    dispatch({
+      type: "AUTH_LOGOUT",
+      payload: null,
     });
-    auth.signOut();
     toast.success("You are now logged out");
+    setTimeout(() => {
+      history.push("/");
+    }, 5000);
   };
 
-  handleClick = (e) => {
-    console.log("click ", e);
-    this.setState({ current: e.key });
+  useEffect(() => {
+    if (auth) {
+      setUserName("Hello, " + auth.name.split(" ")[0]);
+    }
+  }, [auth]);
+
+  const handleClick = (e) => {
+    setCurrent({ current: e.key });
   };
 
-  componentDidMount() {
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        this.setState({
-          loggedIn: true,
-          name: user.displayName.split(" ")[0],
-        });
-      }
-    });
-  }
+  const { SubMenu } = Menu;
+  const { Item } = Menu;
 
-  render() {
-    const { current } = this.state;
-    const { loggedIn } = this.state;
+  return (
+    <Menu onClick={handleClick} selectedKeys={current} mode="horizontal">
+      <Item key="home" icon={<HomeOutlined />}>
+        <Link to="/">Home</Link>
+      </Item>
 
-    return (
-      <Menu
-        onClick={this.handleClick}
-        selectedKeys={[current]}
-        mode="horizontal"
-      >
-        <Item key="home" icon={<HomeOutlined />}>
-          <Link to="/">Home</Link>
-        </Item>
-
-        <Item key="app" icon={<AppstoreOutlined />}>
-          Account
-        </Item>
-        <Item key="alipay">
-          <a
-            href="https://ant.design"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Navigation Four - Link
-          </a>
-        </Item>
-        {loggedIn ? (
-          <SubMenu
-            key="SubMenu"
-            icon={<LockOutlined />}
-            title="Account"
-            className="float-right"
-          >
-            <Item
-              key="auth/login"
-              icon={<UserOutlined />}
-              onClick={this.handleLogout}
-            >
-              Logout
-            </Item>
-            <Item key="auth/profile" icon={<UserAddOutlined />}>
-              <Link to="/auth/profile">Profile</Link>
-            </Item>
-          </SubMenu>
-        ) : (
-          <SubMenu
-            key="SubMenu"
-            icon={<LockOutlined />}
-            title="Account"
-            className="float-right"
-          >
-            <Item key="auth/login" icon={<UserOutlined />}>
-              <Link to="/auth/login">Login</Link>
-            </Item>
-            <Item key="auth/register" icon={<UserAddOutlined />}>
-              <Link to="/auth/register">Register</Link>
-            </Item>
-          </SubMenu>
-        )}
-      </Menu>
-    );
-  }
-}
+      <Item key="app" icon={<AppstoreOutlined />}>
+        Account
+      </Item>
+      <Item key="About">About</Item>
+      {auth && auth.loggedIn ? (
+        <SubMenu
+          key="SubMenu"
+          icon={<LockOutlined />}
+          title={userName}
+          className="float-right"
+        >
+          <Item key="auth/login" icon={<UserOutlined />} onClick={handleLogout}>
+            Logout
+          </Item>
+          <Item key="auth/profile" icon={<UserAddOutlined />}>
+            <Link to="/auth/profile">Profile</Link>
+          </Item>
+        </SubMenu>
+      ) : (
+        <SubMenu
+          key="SubMenu"
+          icon={<LockOutlined />}
+          title="Account"
+          className="float-right"
+        >
+          <Item key="auth/login" icon={<UserOutlined />}>
+            <Link to="/auth/login">Login</Link>
+          </Item>
+          <Item key="auth/register" icon={<UserAddOutlined />}>
+            <Link to="/auth/register">Register</Link>
+          </Item>
+        </SubMenu>
+      )}
+    </Menu>
+  );
+};
 
 export default HeaderComponent;

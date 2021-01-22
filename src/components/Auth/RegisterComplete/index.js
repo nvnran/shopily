@@ -10,7 +10,6 @@ const RegisterCompleteComponent = () => {
   );
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [error, setError] = useState("");
 
   const handleRegister = async (e) => {
     e.preventDefault();

@@ -3,15 +3,15 @@ import AuthLayout from "../../../ui/AuthLayout";
 import { Link } from "react-router-dom";
 import { auth } from "../../Firebase";
 import { toast, ToastContainer } from "react-toastify";
+import { useDispatch } from "react-redux";
 
 import "react-toastify/dist/ReactToastify.css";
 
-const LoginComponent = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+const LoginComponent = ({ history }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [btnText, setBtnText] = useState("Login");
-  const [error, setError] = useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -31,30 +31,38 @@ const LoginComponent = () => {
     toast.error(emailError);
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setBtnText(`<i class="fa fa-circle-o-notch fa-spin fa-fw"></i>`);
-    console.log("clicked");
-    auth
-      .signInWithEmailAndPassword(email, password)
-      .then((user) => {
-        if (user) {
-          window.location.replace("/");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        if (err.code === "auth/wrong-password") {
-          toast.error("Invalid email or password");
-          setBtnText("Login");
-        } else if (err.code === "auth/too-many-requests") {
-          toast.error("Too many login attempts. Please try after some time");
-          setBtnText("Login");
-        } else if (err.code === "auth/user-not-found") {
-          toast.error("Email not recognized, please check your email");
-          setBtnText("Login");
-        }
+
+    try {
+      const result = auth.signInWithEmailAndPassword(email, password);
+      const { user } = result;
+      const idTokenResult = await user.getIdTokenResult();
+      dispatch({
+        type: "AUTH_LOGIN",
+        payload: {
+          id: user.uid,
+          name: user.displayName,
+          phoneNumber: user.phoneNumber,
+          email: user.email,
+          loggedIn: true,
+          token: idTokenResult.token,
+        },
       });
+      history.push("/");
+    } catch (err) {
+      if (err.code === "auth/wrong-password") {
+        toast.error("Invalid email or password");
+        setBtnText("Login");
+      } else if (err.code === "auth/too-many-requests") {
+        toast.error("Too many login attempts. Please try after some time");
+        setBtnText("Login");
+      } else if (err.code === "auth/user-not-found") {
+        toast.error("Email not recognized, please check your email");
+        setBtnText("Login");
+      }
+    }
   };
   return (
     <>
@@ -98,6 +106,12 @@ const LoginComponent = () => {
         <div className="row justify-content-around">
           <small>
             Don't have an account? <Link to="/auth/register">Create One</Link>
+          </small>
+        </div>
+        <div className="row justify-content-around">
+          <small>
+            Forgot your password?{" "}
+            <Link to="/auth/forgot-password">Reset Here</Link>
           </small>
         </div>
       </AuthLayout>
