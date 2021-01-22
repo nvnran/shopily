@@ -1,0 +1,126 @@
+.auth-container {
+  max-width: 350px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px 25px;
+  margin: auto;
+  .authTitle {
+    font-size: 20px;
+    font-family: "Montserrat";
+    font-weight: 200;
+    margin-bottom: 20px;
+  }
+  .registerSection {
+    .form-group {
+      input {
+        font-family: "Montserrat";
+        font-size: 12px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        margin-bottom: 25px;
+        &:disabled {
+          background-color: #fff;
+          border-bottom: 1px solid #17ffe9;
+        }
+      }
+      ::placeholder {
+        font-size: 12px;
+      }
+      .ant-select {
+        width: 100% !important;
+        border: none;
+        .ant-select-selector {
+          &:focus,
+          &:hover {
+            outline: none;
+            box-shadow: none;
+          }
+        }
+        &:focus,
+        &:hover {
+          outline: none;
+          box-shadow: none;
+        }
+      }
+      .btn-submit {
+        padding: 5px 50px;
+        border: 2px solid #ccc;
+        border-radius: 25px;
+      }
+      text-align: center;
+    }
+  }
+  .otpSection {
+    margin-top: 60px;
+    .form-group {
+      input {
+        font-family: "Montserrat";
+        font-size: 12px;
+        font-weight: 300;
+        letter-spacing: 8px;
+        text-align: center;
+      }
+      ::placeholder {
+        font-size: 12px;
+      }
+      .btn-submit {
+        padding: 5px 50px;
+        border: 2px solid #ccc;
+        border-radius: 25px;
+      }
+      text-align: center;
+    }
+  }
+  .passwordSection {
+    margin-top: 60px;
+    .form-group {
+      input {
+        font-family: "Montserrat";
+        font-size: 12px;
+        font-weight: 300;
+        letter-spacing: 8px;
+        text-align: center;
+      }
+      ::placeholder {
+        font-size: 12px;
+      }
+      .btn-submit {
+        padding: 5px 50px;
+        border: 2px solid #ccc;
+        border-radius: 25px;
+      }
+      text-align: center;
+    }
+  }
+  .loginSection {
+    margin-top: 60px;
+    .form-group {
+      input {
+        font-family: "Montserrat";
+        font-size: 12px;
+        font-weight: 300;
+        letter-spacing: 2px;
+      }
+      ::placeholder {
+        font-size: 12px;
+      }
+      .btn-submit {
+        margin-top: 25px;
+        padding: 5px 50px;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+      }
+      text-align: center;
+    }
+  }
+}
+
+.authHr {
+  height: 0;
+  width: 350px;
+  margin: 0 auto;
+  margin-top: 40px;
+  border: none;
+  border-color: #fff;
+  box-shadow: 0 25px 15px 5px #ccc;
+}
