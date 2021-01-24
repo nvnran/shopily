@@ -2,6 +2,7 @@ import React, { useEffect, lazy } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { auth } from "./components/Firebase";
 import { useDispatch } from "react-redux";
+import { currentUser } from "./functions/auth";
 
 const Home = lazy(() => import("./components/Home"));
 const Login = lazy(() => import("./components/Auth/Login"));
@@ -18,17 +19,24 @@ const App = () => {
     const user = auth.onAuthStateChanged(async (user) => {
       if (user) {
         const idTokenResult = await user.getIdTokenResult();
-        dispatch({
-          type: "AUTH_LOGIN",
-          payload: {
-            id: user.uid,
-            name: user.displayName,
-            phoneNumber: user.phoneNumber,
-            email: user.email,
-            loggedIn: true,
-            token: idTokenResult.token,
-          },
-        });
+        currentUser(idTokenResult.token)
+          .then((res) => {
+            dispatch({
+              type: "AUTH_LOGIN",
+              payload: {
+                id: res.data._id,
+                name: res.data.name,
+                phone_number: res.data.phone_number,
+                email: res.data.email,
+                loggedIn: true,
+                token: idTokenResult.token,
+                role: res.data.role,
+              },
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
     });
     return () => user();

@@ -3,9 +3,10 @@ import { Select } from "antd";
 import AuthLayout from "../../../ui/AuthLayout";
 import countryCodesData from "../../../data/telCountryCodes.json";
 import firebase from "../../Firebase";
-import { auth } from "../../Firebase";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { createUser } from "../../../functions/auth";
 
 const RegisterComponent = () => {
   const [email, setEmail] = useState("");
@@ -21,15 +22,10 @@ const RegisterComponent = () => {
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const dispatch = useDispatch();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    var obj = {
-      name: fullName,
-      email: email,
-      phonenumber: countryCode + phoneNumber,
-    };
-    console.log(obj);
     setOtpSection(true);
     signInSubmit();
   };
@@ -42,20 +38,21 @@ const RegisterComponent = () => {
     e.preventDefault();
     setPassText(`<i class="fa fa-circle-o-notch fa-spin fa-fw"></i>`);
     if (password === confirmPassword) {
-      let user = auth.currentUser;
+      let user = firebase.auth().currentUser;
       user
         .updatePassword(password)
         .then(() => {
           user
             .sendEmailVerification()
-            .then(function () {
+            .then(() => {
               toast.success(
                 "Registration complete. you can now Login. Please take a moment to verify your email."
               );
-              auth.signOut();
-              setTimeout(() => {
-                window.location.replace("/auth/login");
-              }, 4000);
+              firebase.auth().signOut();
+              // setTimeout(() => {
+              //   window.location.replace("/auth/login");
+              // }, 4000);
+              CompleteRegistrationProcess(user);
             })
             .catch((err) => {
               setError(err.message);
@@ -67,6 +64,32 @@ const RegisterComponent = () => {
           toast.error(error);
         });
     }
+  };
+
+  const CompleteRegistrationProcess = async (user) => {
+    const idTokenResult = await user.getIdTokenResult();
+    createUser(idTokenResult.token)
+      .then((res) => {
+        console.log(res);
+        dispatch({
+          type: "AUTH_LOGIN",
+          payload: {
+            id: res.data._id,
+            name: res.data.displayName,
+            phone_number: res.data.phone_number,
+            email: res.data.email,
+            loggedIn: true,
+            token: idTokenResult.token,
+            role: res.data.role,
+          },
+        });
+        setTimeout(() => {
+          window.location.replace("/auth/login");
+        }, 3000);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const validateEmail = (value) => {
@@ -115,15 +138,13 @@ const RegisterComponent = () => {
     window.confirmationResult
       .confirm(otp)
       .then(function (result) {
-        const user = auth.currentUser;
+        const user = firebase.auth().currentUser;
         user.updateEmail(email).then(() => {
-          console.log("Email Updated");
           user
             .updateProfile({
               displayName: fullName,
             })
             .then(() => {
-              console.log("Name Updated");
               setMainSection(false);
               setOtpSection(false);
               setPasswordSection(true);

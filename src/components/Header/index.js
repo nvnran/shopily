@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const HeaderComponent = () => {
-  const [current, setCurrent] = useState("");
+  // const [current, setCurrent] = useState("");
   const [userName, setUserName] = useState("Account");
 
   const dispatch = useDispatch();
@@ -38,15 +38,16 @@ const HeaderComponent = () => {
     }
   }, [auth]);
 
-  const handleClick = (e) => {
-    setCurrent({ current: e.key });
-  };
+  // const handleClick = (e) => {
+  //   setCurrent({ current: e.key });
+  // };
 
   const { SubMenu } = Menu;
   const { Item } = Menu;
 
   return (
-    <Menu onClick={handleClick} selectedKeys={current} mode="horizontal">
+    // <Menu onClick={handleClick} selectedKeys={current} mode="horizontal">
+    <Menu mode="horizontal">
       <Item key="home" icon={<HomeOutlined />}>
         <Link to="/">Home</Link>
       </Item>
